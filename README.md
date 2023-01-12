@@ -1,4 +1,4 @@
-# battleMapPresenter
+# BattleMapPresenter
 
 By:Skylar Brockbank
 
