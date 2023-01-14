@@ -1,0 +1,10 @@
+#buttonFrame {
+  display: flex;
+}
+
+.controlButton {
+  background-color: lightgray;
+  border-color:gray;
+  padding: 1em;
+  margin:.5em;
+}

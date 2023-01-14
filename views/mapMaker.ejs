@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../css/mapMakerStyles.css" rel="stylesheet"/>
+</head>
+<body>
+  <div id="fullContainer">
+    <div id="canvasFrame">
+      <canvas id="mapCanvas"></canvas>
+    </div>
+    <div id="controlFrame">
+      <div class="buttonFrame">
+        <button id="tileButton">Tile Mode</button>
+        <button id="stampButton">Stamp Mode</button>
+      </div>
+      <div id="actionTray">
+        <div id="tileTray">
+          <h4>Tiles</h4>
+          <select id="tileSelector">
+          </select>
+        </div>
+        <div id="stampTray">
+          <h4>Stamps</h4>
+          <select id="stampSelector">
+          </select>
+          <br/>
+          <label>
+            Rotation
+            <input type="range" min="0" max="360" id="rotation" value="0">
+            <input type="number" id="rotationValue" value="0">
+          </label>
+          <br/>
+          <label>
+            Scale
+            <input type="range" min="0" max="200" id="scale" value="100">
+            <input type="number" id="scaleValue" value="100">
+          </label>
+          
+        </div>
+      </div>
+      <div class="buttonFrame">
+        <button id="submit">submit</button>
+      </div>
+    </div>
+  </div>
+  <a href="/controller">return to controller menue</a>
+</body>
+<script src="../resources/mapMaker.js"></script>
+</html>

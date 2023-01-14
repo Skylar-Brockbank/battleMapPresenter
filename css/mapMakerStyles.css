@@ -1,0 +1,43 @@
+body {
+  margin:0;
+  padding:0;
+  background-color: rgb(121, 117, 107);
+}
+#fullContainer {
+  padding:0;
+  margin:2vw;
+  display:grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 5vw;
+  width: 96vw;
+  height: 90vh;
+}
+#canvasFrame {
+  background-color: tan;
+}
+
+#controlFrame {
+  background-color: lightgray;
+  height:100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.buttonFrame {
+  margin:1vw;
+}
+
+#stampTray {
+  display:none;
+}
+
+#mapCanvas {
+  border:solid black;
+}
+
+#actionTray {
+  border:.25em solid rgb(141, 141, 141);
+  background-color:rgb(141, 141, 141);
+  height:100%;
+}

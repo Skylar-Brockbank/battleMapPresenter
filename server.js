@@ -1,4 +1,3 @@
-const path = require('path');
 const express = require("express");
 const http = require('http');
 const socketio = require('socket.io');
@@ -6,6 +5,8 @@ const socketio = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
+
+
 
 app.use(express.static(__dirname));
 
@@ -36,6 +37,11 @@ app.get("/", (req, res) => {
 app.get("/display",(req,res)=>{
   res.status(200);
   res.render('display');
+})
+
+app.get("/map-maker",(req,res)=>{
+  res.status(200);
+  res.render('mapMaker');
 })
 
 app.get("/controller",(req,res)=>{

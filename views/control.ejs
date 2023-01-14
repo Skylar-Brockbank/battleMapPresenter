@@ -5,13 +5,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <link href="../css/styles.css" rel="stylesheet"></a>
+  <link href="../css/controlStyles.css" rel="stylesheet"></a>
   <script src='/socket.io/socket.io.js'></script>
 </head>
 <body>
   <h1>This is the control view</h1>
-  <div id="testButtonRed">red</div>
-  <div id="testButtonBlue">blue</div>
+  <div id="buttonFrame">
+    <div class="controlButton" id="testButtonRed">red</div>
+    <div class="controlButton" id="testButtonBlue">blue</div>
+    <div class="controlButton" id="testButtonBlack">black</div>
+  </div>
+  <a href="/map-maker">go to map maker</a>
   <script src="resources/controller.js"></script>
 </body>
 </html>
