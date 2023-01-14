@@ -105,6 +105,12 @@ const drawCross=(xIn,yIn)=>{
 const getTile=(xIn,yIn)=>{
   return (Math.floor(yIn/q)*x)+(Math.floor(xIn/q));
 }
+const updateMapVisuals=()=>{
+  for(i=0;i<x*y;i++){
+    fillTile(i, textures[mapObject.tiles[i]]);
+  }
+  drawGrid();
+}
 
 const fillTile=(id, color)=>{
   const yIn = Math.floor(id/x);
@@ -175,4 +181,12 @@ document.getElementById('clear').addEventListener('click',e=>{
   brush.clearRect(0,0,canvas.width,canvas.height);
   drawGrid()
   intializeMapTiles();
+})
+document.getElementById('fill').addEventListener('click',e=>{
+  e.preventDefault();
+  for(i=0;i<mapObject.tiles.length;i++){
+    mapObject.tiles[i]=tileSelector.value
+  }
+  updateMapVisuals();
+  console.log(mapObject)
 })
