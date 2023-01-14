@@ -1,4 +1,4 @@
-
+const socket = io();
 //TileData
 const tiles = {
   0:'dirt',
@@ -53,10 +53,13 @@ const x=12;
 const y=20;
 
 //populate map tiles
-for(let i = 0; i<x*y;i++){
-  mapObject.tiles.push(0);
+const intializeMapTiles = ()=>{
+  for(let i = 0; i<x*y;i++){
+    mapObject.tiles.push(0);
+  }
+  mapObject.stamps=[];
 }
-
+intializeMapTiles();
 
 let trayMode=0;
 
@@ -163,5 +166,13 @@ rotationValue.addEventListener('input',e=>{
 })
 sendButton.addEventListener('click',e=>{
   e.preventDefault();
-  console.log(mapObject);
+  socket.emit('message',{type:'save',payload:{name:document.getElementById('fileName').value, map:mapObject}})
+})
+document.getElementById('clear').addEventListener('click',e=>{
+  e.preventDefault();
+  brush.beginPath();
+  brush.closePath();
+  brush.clearRect(0,0,canvas.width,canvas.height);
+  drawGrid()
+  intializeMapTiles();
 })

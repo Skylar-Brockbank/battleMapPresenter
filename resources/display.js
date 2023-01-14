@@ -3,6 +3,27 @@ const socket = io();
 // socket.on('message', message=>{
 //   console.log(message);
 // })
+const tiles = {
+  0:'dirt',
+  1:'grass',
+  2:'wood',
+  3:'stone',
+  4:'water'
+}
+
+const textures = {
+  0:'tan',
+  1:'green',
+  2:'brown',
+  3:'gray',
+  4:'blue'
+}
+
+const stamps = {
+  0:'tree',
+  1:'log'
+}
+
 const area = document.getElementById('mapArea');
 const brush = area.getContext('2d');
 
@@ -36,15 +57,34 @@ const drawGrid = ()=>{
     brush.stroke();
   }
 }
+const fillTile=(id, color)=>{
+  const yIn = Math.floor(id/x);
+  const xIn = id-x*yIn;
+  brush.fillStyle=color;
+  brush.fillRect(xIn*q,yIn*q,q,q);
+}
+
+const drawMap=(map)=>{
+  for(let i=0; i<map.map.tiles.length; i++){
+    fillTile(i, textures[map.map.tiles[i]]);
+  }
+}
+
 const clearScreen = () =>{
   brush.fillStyle='black';
   brush.fillRect(0,0,area.width,area.height);
 }
 
 socket.on('message', msg=>{
-  if(msg==='black'){
-    clearScreen();
-  }else{
-    colorChange(msg);  
+  if(msg.type==='color'){
+    if(msg.payload==='black'){
+      clearScreen();
+    }else{
+      colorChange(msg.payload);  
+    }
+  }else if(msg.type==='map'){
+    console.log(msg);
+    drawMap(msg.payload);
+    drawGrid();
   }
 })

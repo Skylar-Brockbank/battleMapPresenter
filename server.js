@@ -1,6 +1,16 @@
 const express = require("express");
 const http = require('http');
 const socketio = require('socket.io');
+const fs = require("fs");
+const uuid = require('uuid')
+
+let mapData='';
+try{
+  const dataString = fs.readFileSync('./data/allMapData.json');
+  mapData=JSON.parse(dataString);
+}catch(err){
+  console.log(err);
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -21,7 +31,37 @@ io.on('connection', socket=>{
   //communication management
   socket.on('colorChange', msg=>{
     console.log('color change recieved',msg)
-    io.emit('message', msg);
+
+    io.emit('message', {type:'color',payload:msg});
+  })
+  socket.on('message', msg=>{
+    console.log(msg);
+    if(msg.type==='save'){
+      try{
+        const dataString = fs.readFileSync('./data/allMapData.json');
+        mapData=JSON.parse(dataString);
+        console.log(JSON.stringify(mapData));
+      }catch(err){
+        console.log(err);
+      }
+      console.log({name:msg.payload.name, map:msg.payload.map})
+      console.log(msg.payload.map)
+      mapData[uuid.v4()]={name:msg.payload.name, map:msg.payload.map};
+      console.log('updated MapData', mapData);
+      fs.writeFileSync('./data/allMapData.json', JSON.stringify(mapData));
+
+
+    }else if(msg.type==='command'){
+      io.emit('message',{type:"map",payload:mapData[msg.payload]});
+    }else if(msg.type==='request'){
+      let outgoingIndex={};
+      let mapDataGuide = Object.keys(mapData);
+      mapDataGuide.forEach(e=>{
+        outgoingIndex[e]=mapData[e].name;
+      })
+      console.log('emitting response');
+      socket.emit('message',{type:'data',payload:outgoingIndex});
+    }
   })
 })
 
