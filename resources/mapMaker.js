@@ -21,6 +21,28 @@ const stamps = {
   1:'log'
 }
 
+let stampIndex;
+
+const getStamps=()=>{
+  socket.emit('message',{type:'stampIndex'});
+}
+getStamps();
+
+socket.on('message',m=>{
+  if(m.type === 'stampIndexResponse'){
+    stampIndex=m.payload;
+
+    for(let i =0; i<stampIndex.length;i++){
+      const temp = document.createElement('option');
+      temp.value=i;
+      const sign = document.createTextNode(stampIndex[i].name);
+      temp.appendChild(sign);
+      stampSelector.appendChild(temp);
+    }
+    
+  }
+})
+
 //Injecting elements for the selector
 const tileSelector = document.getElementById('tileSelector');
 const guide = Object.keys(tiles);
@@ -33,13 +55,7 @@ for(let i = 0; i<guide.length; i++){
 }
 
 const stampSelector = document.getElementById('stampSelector');
-for(let i =0; i<Object.keys(stamps).length;i++){
-  const temp = document.createElement('option');
-  temp.value=i;
-  const sign = document.createTextNode(stamps[i]);
-  temp.appendChild(sign);
-  stampSelector.appendChild(temp);
-}
+
 
 //Grid and file Setup
 
@@ -102,6 +118,19 @@ const drawCross=(xIn,yIn)=>{
   brush.stroke();
 }
 
+const drawStamp = (stamp,xIn,yIn,scale,rotation)=>{
+  const image = new Image();
+  image.onload= ()=>{
+    brush.save();
+    brush.translate(xIn,yIn);
+    brush.rotate(rotation*(Math.PI/180));
+    brush.scale(scale/100,scale/100);
+    brush.drawImage(image,0-q/2,0-q/2, q,q);
+    brush.restore();
+  }
+  image.src=stampIndex[stamp].image;
+}
+
 const getTile=(xIn,yIn)=>{
   return (Math.floor(yIn/q)*x)+(Math.floor(xIn/q));
 }
@@ -119,6 +148,28 @@ const fillTile=(id, color)=>{
   brush.fillRect(xIn*q,yIn*q,q,q);
 }
 
+const drawStampLine = (x1,y1,x2,y2) =>{
+  const dX = Math.abs(x1-x2);
+  const dY = Math.abs(y1-y2);
+  console.log('dx:',dX,'dy:',dY)
+  const mode = dX>dY?'x':'y';
+
+  if(mode==='x'){
+    const coModifier = x1-x2>0?1:-1;
+    for(let i =0; i<Math.floor(dX/q);i++){
+      console.log('place stamp',x1-(i*q),y1);
+      drawStamp(stampSelector.value, x1+(q/2)-coModifier*(i*q),y1,scaleSlider.value, rotationSlider.value);
+      mapObject.stamps.push({x:((x1-(i*q))/canvas.width), y:(y1/canvas.height),scale:scaleSlider.value,rotation:rotationSlider.value,stamp:stampSelector.value})
+    }
+  }else{
+    const coModifier = y1-y2>0?1:-1;
+    for(let i =0; i<Math.floor(dY/q);i++){
+      drawStamp(stampSelector.value, x1,y1+(q/2)-coModifier*(i*q),scaleSlider.value, rotationSlider.value);
+      mapObject.stamps.push({x:(x1/canvas.width), y:((y1-(i*q))/canvas.height),scale:scaleSlider.value,rotation:rotationSlider.value,stamp:stampSelector.value})
+    }
+  }
+}
+
 drawGrid()
 
 //Here lies those who listen and act
@@ -127,6 +178,7 @@ const rotationValue = document.getElementById('rotationValue');
 const scaleSlider = document.getElementById('scale');
 const scaleValue = document.getElementById('scaleValue');
 const sendButton = document.getElementById('submit');
+const lineMode = document.getElementById('lineMode');
 
 document.getElementById('tileButton').addEventListener('click',e=>{
   e.preventDefault();
@@ -142,19 +194,28 @@ document.getElementById('stampButton').addEventListener('click',e=>{
   document.getElementById('stampTray').style.display='block';
 })
 
+let point1={};
 canvas.addEventListener('click',(e)=>{
   e.preventDefault();
   if(trayMode===0){
     fillTile(getTile(e.offsetX,e.offsetY),textures[tileSelector.value]);
     mapObject.tiles[getTile(e.offsetX,e.offsetY)]=tileSelector.value;
   }else{
-    brush.save();
-    brush.translate(e.offsetX,e.offsetY);
-    brush.rotate(rotationSlider.value*(Math.PI/180));
-    brush.scale(scaleSlider.value/100,scaleSlider.value/100);
-    drawCross(0,0);
-    mapObject.stamps.push({x:(e.offsetX/canvas.width), y:(e.offsetY/canvas.height),scale:scaleSlider.value,rotation:rotationSlider.value,stamp:stampSelector.value})
-    brush.restore();
+    console.log(lineMode.checked);
+    if(lineMode.checked){
+      if (point1.x){
+        console.log('point1 is known:',point1,{x:e.offsetX,y:e.offsetY})
+        drawStampLine(point1.x,point1.y,e.offsetX,e.offsetY);
+        point1={};
+      }else{
+        point1={x:e.offsetX,y:e.offsetY};
+        console.log('point1 set:',point1)
+      }
+    }else{
+      drawStamp(stampSelector.value,e.offsetX,e.offsetY,scaleSlider.value,rotationSlider.value);
+      mapObject.stamps.push({x:(e.offsetX/canvas.width), y:(e.offsetY/canvas.height),scale:scaleSlider.value,rotation:rotationSlider.value,stamp:stampSelector.value})
+    }
+    
   }
 })
 

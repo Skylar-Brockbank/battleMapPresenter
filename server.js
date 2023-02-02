@@ -3,6 +3,7 @@ const http = require('http');
 const socketio = require('socket.io');
 const fs = require("fs");
 const uuid = require('uuid')
+const path = require('path');
 
 let mapData='';
 try{
@@ -16,7 +17,29 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-
+const gatherImages=()=>{
+  const imagePath = path.join(__dirname,'images');
+  let imageArray = [];
+  fs.readdir(imagePath,(err,i)=>{
+    if(err){
+      console.log(err);
+    }
+    i.forEach(file=>{
+      const tempImagePath = './images/'+file;
+      fs.readFile(tempImagePath,{encoding:'base64'},(err,image)=>{
+        if(err){
+          console.log(err);
+        }
+        else{
+          imageArray.push({name:file,image:"data:image/png;base64,"+image});
+        }
+        
+      })
+    })
+  })
+  return imageArray;
+}
+const globalImages = gatherImages();
 
 app.use(express.static(__dirname));
 
@@ -61,6 +84,8 @@ io.on('connection', socket=>{
       })
       console.log('emitting response');
       socket.emit('message',{type:'data',payload:outgoingIndex});
+    }else if(msg.type==='stampIndex'){
+      socket.emit('message',{type:'stampIndexResponse',payload:globalImages});
     }
   })
 })
