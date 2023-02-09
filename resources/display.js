@@ -8,7 +8,9 @@ const tiles = {
   1:'grass',
   2:'wood',
   3:'stone',
-  4:'water'
+  4:'water',
+  5:'void',
+  6:'brick'
 }
 
 const textures = {
@@ -16,7 +18,9 @@ const textures = {
   1:'green',
   2:'brown',
   3:'gray',
-  4:'blue'
+  4:'blue',
+  5:'black',
+  6:'rgb(50, 53, 77)'
 }
 
 const stamps = {

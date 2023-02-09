@@ -17,15 +17,17 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
+
+//Grabs all program Images to have them prepared for later use
 const gatherImages=()=>{
-  const imagePath = path.join(__dirname,'images');
+  const imagePath = path.join(__dirname,'images/Sprites');
   let imageArray = [];
   fs.readdir(imagePath,(err,i)=>{
     if(err){
       console.log(err);
     }
     i.forEach(file=>{
-      const tempImagePath = './images/'+file;
+      const tempImagePath = './images/Sprites/'+file;
       fs.readFile(tempImagePath,{encoding:'base64'},(err,image)=>{
         if(err){
           console.log(err);
@@ -59,6 +61,8 @@ io.on('connection', socket=>{
   })
   socket.on('message', msg=>{
     console.log(msg);
+
+    //Save a new Map
     if(msg.type==='save'){
       try{
         const dataString = fs.readFileSync('./data/allMapData.json');
@@ -73,9 +77,11 @@ io.on('connection', socket=>{
       console.log('updated MapData', mapData);
       fs.writeFileSync('./data/allMapData.json', JSON.stringify(mapData));
 
-
+      //Control Display screen
     }else if(msg.type==='command'){
       io.emit('message',{type:"map",payload:mapData[msg.payload]});
+
+      //Send Maps
     }else if(msg.type==='request'){
       let outgoingIndex={};
       let mapDataGuide = Object.keys(mapData);
@@ -84,8 +90,10 @@ io.on('connection', socket=>{
       })
       console.log('emitting response');
       socket.emit('message',{type:'data',payload:outgoingIndex});
-    }else if(msg.type==='stampIndex'){
-      socket.emit('message',{type:'stampIndexResponse',payload:globalImages});
+
+      //Send Images
+    }else if(msg.type==='fullImageRequest'){
+      socket.emit('message',{type:'fullImageRequestResponse',payload:globalImages});
     }
   })
 })

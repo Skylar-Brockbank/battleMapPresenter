@@ -21,39 +21,47 @@ const stamps = {
   1:'log'
 }
 
-let stampIndex;
+let imageIndex;
 
 const getStamps=()=>{
-  socket.emit('message',{type:'stampIndex'});
+  socket.emit('message',{type:'fullImageRequest'});
 }
 getStamps();
 
 socket.on('message',m=>{
-  if(m.type === 'stampIndexResponse'){
-    stampIndex=m.payload;
+  if(m.type === 'fullImageRequestResponse'){
+    imageIndex=m.payload;
 
-    for(let i =0; i<stampIndex.length;i++){
+    for(let i =0; i<imageIndex.length;i++){
       const temp = document.createElement('option');
       temp.value=i;
-      const sign = document.createTextNode(stampIndex[i].name);
+      const sign = document.createTextNode(imageIndex[i].name);
       temp.appendChild(sign);
       stampSelector.appendChild(temp);
+    }
+
+    for(let i =0; i<imageIndex.length;i++){
+      const temp = document.createElement('option');
+      temp.value=i;
+      const sign = document.createTextNode(imageIndex[i].name);
+      temp.appendChild(sign);
+      tileSelector.appendChild(temp);
     }
     
   }
 })
 
 //Injecting elements for the selector
+// const guide = Object.keys(tiles);
+// for(let i = 0; i<guide.length; i++){
+  //   const temp = document.createElement('option');
+  //   temp.value=i;
+  //   const sign = document.createTextNode(tiles[guide[i]]);
+  //   temp.appendChild(sign);
+  //   tileSelector.appendChild(temp);
+  // }
+  
 const tileSelector = document.getElementById('tileSelector');
-const guide = Object.keys(tiles);
-for(let i = 0; i<guide.length; i++){
-  const temp = document.createElement('option');
-  temp.value=i;
-  const sign = document.createTextNode(tiles[guide[i]]);
-  temp.appendChild(sign);
-  tileSelector.appendChild(temp);
-}
-
 const stampSelector = document.getElementById('stampSelector');
 
 
@@ -128,7 +136,7 @@ const drawStamp = (stamp,xIn,yIn,scale,rotation)=>{
     brush.drawImage(image,0-q/2,0-q/2, q,q);
     brush.restore();
   }
-  image.src=stampIndex[stamp].image;
+  image.src=imageIndex[stamp].image;
 }
 
 const getTile=(xIn,yIn)=>{
@@ -136,38 +144,26 @@ const getTile=(xIn,yIn)=>{
 }
 const updateMapVisuals=()=>{
   for(i=0;i<x*y;i++){
-    fillTile(i, textures[mapObject.tiles[i]]);
+    fillTile(i, mapObject.tiles[i]);
   }
   drawGrid();
 }
 
 const fillTile=(id, color)=>{
-  const yIn = Math.floor(id/x);
-  const xIn = id-x*yIn;
-  brush.fillStyle=color;
-  brush.fillRect(xIn*q,yIn*q,q,q);
-}
+  const yIn = (Math.floor(id/x))*q;
+  const xIn = (id-x*(Math.floor(id/x)))*q;
+  // brush.fillStyle=color;
+  // brush.fillRect(xIn*q,yIn*q,q,q);
 
-const drawStampLine = (x1,y1,x2,y2) =>{
-  const dX = Math.abs(x1-x2);
-  const dY = Math.abs(y1-y2);
-  console.log('dx:',dX,'dy:',dY)
-  const mode = dX>dY?'x':'y';
 
-  if(mode==='x'){
-    const coModifier = x1-x2>0?1:-1;
-    for(let i =0; i<Math.floor(dX/q);i++){
-      console.log('place stamp',x1-(i*q),y1);
-      drawStamp(stampSelector.value, x1+(q/2)-coModifier*(i*q),y1,scaleSlider.value, rotationSlider.value);
-      mapObject.stamps.push({x:((x1-(i*q))/canvas.width), y:(y1/canvas.height),scale:scaleSlider.value,rotation:rotationSlider.value,stamp:stampSelector.value})
-    }
-  }else{
-    const coModifier = y1-y2>0?1:-1;
-    for(let i =0; i<Math.floor(dY/q);i++){
-      drawStamp(stampSelector.value, x1,y1+(q/2)-coModifier*(i*q),scaleSlider.value, rotationSlider.value);
-      mapObject.stamps.push({x:(x1/canvas.width), y:((y1-(i*q))/canvas.height),scale:scaleSlider.value,rotation:rotationSlider.value,stamp:stampSelector.value})
-    }
+  const image = new Image();
+  image.onload= ()=>{
+    brush.save();
+    brush.translate(xIn,yIn);
+    brush.drawImage(image,0,0, q,q);
+    brush.restore();
   }
+  image.src=imageIndex[color].image;
 }
 
 drawGrid()
@@ -178,7 +174,6 @@ const rotationValue = document.getElementById('rotationValue');
 const scaleSlider = document.getElementById('scale');
 const scaleValue = document.getElementById('scaleValue');
 const sendButton = document.getElementById('submit');
-const lineMode = document.getElementById('lineMode');
 
 document.getElementById('tileButton').addEventListener('click',e=>{
   e.preventDefault();
@@ -194,27 +189,15 @@ document.getElementById('stampButton').addEventListener('click',e=>{
   document.getElementById('stampTray').style.display='block';
 })
 
-let point1={};
+//Canvas click event handler
 canvas.addEventListener('click',(e)=>{
   e.preventDefault();
   if(trayMode===0){
-    fillTile(getTile(e.offsetX,e.offsetY),textures[tileSelector.value]);
+    fillTile(getTile(e.offsetX,e.offsetY),tileSelector.value);
     mapObject.tiles[getTile(e.offsetX,e.offsetY)]=tileSelector.value;
   }else{
-    console.log(lineMode.checked);
-    if(lineMode.checked){
-      if (point1.x){
-        console.log('point1 is known:',point1,{x:e.offsetX,y:e.offsetY})
-        drawStampLine(point1.x,point1.y,e.offsetX,e.offsetY);
-        point1={};
-      }else{
-        point1={x:e.offsetX,y:e.offsetY};
-        console.log('point1 set:',point1)
-      }
-    }else{
-      drawStamp(stampSelector.value,e.offsetX,e.offsetY,scaleSlider.value,rotationSlider.value);
-      mapObject.stamps.push({x:(e.offsetX/canvas.width), y:(e.offsetY/canvas.height),scale:scaleSlider.value,rotation:rotationSlider.value,stamp:stampSelector.value})
-    }
+    drawStamp(stampSelector.value,e.offsetX,e.offsetY,scaleSlider.value,rotationSlider.value);
+    mapObject.stamps.push({x:(e.offsetX/canvas.width), y:(e.offsetY/canvas.height),scale:scaleSlider.value,rotation:rotationSlider.value,stamp:stampSelector.value})
     
   }
 })
