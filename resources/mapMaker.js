@@ -123,10 +123,7 @@ const updateMapVisuals=()=>{
 const fillTile=(id, color)=>{
   const yIn = (Math.floor(id/x))*q;
   const xIn = (id-x*(Math.floor(id/x)))*q;
-  // brush.fillStyle=color;
-  // brush.fillRect(xIn*q,yIn*q,q,q);
-
-
+  
   const image = new Image();
   image.onload= ()=>{
     brush.save();

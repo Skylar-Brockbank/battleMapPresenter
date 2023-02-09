@@ -1,32 +1,6 @@
 const socket = io();
 
-// socket.on('message', message=>{
-//   console.log(message);
-// })
-const tiles = {
-  0:'dirt',
-  1:'grass',
-  2:'wood',
-  3:'stone',
-  4:'water',
-  5:'void',
-  6:'brick'
-}
-
-const textures = {
-  0:'tan',
-  1:'green',
-  2:'brown',
-  3:'gray',
-  4:'blue',
-  5:'black',
-  6:'rgb(50, 53, 77)'
-}
-
-const stamps = {
-  0:'tree',
-  1:'log'
-}
+let imageIndex;
 
 const area = document.getElementById('mapArea');
 const brush = area.getContext('2d');
@@ -39,6 +13,11 @@ area.style.height=y*q;
 area.style.width=x*q;
 area.height = y*q;
 area.width = x*q;
+
+const getStamps=()=>{
+  socket.emit('message',{type:'fullImageRequest'});
+}
+getStamps();
 
 
 
@@ -62,15 +41,22 @@ const drawGrid = ()=>{
   }
 }
 const fillTile=(id, color)=>{
-  const yIn = Math.floor(id/x);
-  const xIn = id-x*yIn;
-  brush.fillStyle=color;
-  brush.fillRect(xIn*q,yIn*q,q,q);
+  const yIn = (Math.floor(id/x))*q;
+  const xIn = (id-x*(Math.floor(id/x)))*q;
+  
+  const image = new Image();
+  image.onload= ()=>{
+    brush.save();
+    brush.translate(xIn,yIn);
+    brush.drawImage(image,0,0, q,q);
+    brush.restore();
+  }
+  image.src=imageIndex[color].image;
 }
 
 const drawMap=(map)=>{
   for(let i=0; i<map.map.tiles.length; i++){
-    fillTile(i, textures[map.map.tiles[i]]);
+    fillTile(i, map.map.tiles[i]);
   }
 }
 
@@ -90,5 +76,7 @@ socket.on('message', msg=>{
     console.log(msg);
     drawMap(msg.payload);
     drawGrid();
+  }else if(msg.type === 'fullImageRequestResponse'){
+    imageIndex=msg.payload;
   }
 })
