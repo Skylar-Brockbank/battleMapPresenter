@@ -15,18 +15,19 @@ socket.on('message',m=>{
   if(m.type === 'fullImageRequestResponse'){
     imageIndex=m.payload;
 
-    for(let i =0; i<imageIndex.length;i++){
+    let utilityArray = Object.keys(imageIndex);
+    for(let i =0; i<utilityArray.length;i++){
       const temp = document.createElement('option');
-      temp.value=i;
-      const sign = document.createTextNode(imageIndex[i].name);
+      temp.value=utilityArray[i];
+      const sign = document.createTextNode(utilityArray[i]);
       temp.appendChild(sign);
       stampSelector.appendChild(temp);
     }
 
-    for(let i =0; i<imageIndex.length;i++){
+    for(let i =0; i<utilityArray.length;i++){
       const temp = document.createElement('option');
-      temp.value=i;
-      const sign = document.createTextNode(imageIndex[i].name);
+      temp.value=utilityArray[i];
+      const sign = document.createTextNode(utilityArray[i]);
       temp.appendChild(sign);
       tileSelector.appendChild(temp);
     }

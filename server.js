@@ -23,7 +23,7 @@ const gatherImages=()=>{
   const imagePath = path.join(__dirname,'images/Sprites');
 
   //convert Image array to image library and make it an object
-  let imageArray = [];
+  let imageArray = {};
   fs.readdir(imagePath,(err,i)=>{
     if(err){
       console.log(err);
@@ -36,8 +36,8 @@ const gatherImages=()=>{
         }
         else{
           //make the name the key and the image the value
-          imageArray.push({name:file,image:"data:image/png;base64,"+image});
-          // imageArray[file] = {name:file,image:"data:image/png;base64,"+image};
+          // imageArray.push({name:file,image:"data:image/png;base64,"+image});
+          imageArray[file] = {name:file,image:"data:image/png;base64,"+image};
 
           // consider also dividing the textures into tiles stamps and items with a prefix to the file name
         }
