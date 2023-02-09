@@ -1,7 +1,7 @@
 {
   "name": "battle-map",
   "version": "1.0.0",
-  "description": "",
+  "description": "DnD Battle Map Maker",
   "main": "index.js",
   "scripts": {
     "watch": "nodemon ./server.js"
