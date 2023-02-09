@@ -1,25 +1,8 @@
 const socket = io();
-//TileData
-const tiles = {
-  0:'dirt',
-  1:'grass',
-  2:'wood',
-  3:'stone',
-  4:'water'
-}
 
-const textures = {
-  0:'tan',
-  1:'green',
-  2:'brown',
-  3:'gray',
-  4:'blue'
-}
-
-const stamps = {
-  0:'tree',
-  1:'log'
-}
+//Set global size
+const x=12;
+const y=20;
 
 let imageIndex;
 
@@ -50,17 +33,7 @@ socket.on('message',m=>{
     
   }
 })
-
-//Injecting elements for the selector
-// const guide = Object.keys(tiles);
-// for(let i = 0; i<guide.length; i++){
-  //   const temp = document.createElement('option');
-  //   temp.value=i;
-  //   const sign = document.createTextNode(tiles[guide[i]]);
-  //   temp.appendChild(sign);
-  //   tileSelector.appendChild(temp);
-  // }
-  
+//Identify select box objects
 const tileSelector = document.getElementById('tileSelector');
 const stampSelector = document.getElementById('stampSelector');
 
@@ -73,10 +46,8 @@ let mapObject = {
 }
 
 
-const x=12;
-const y=20;
-
 //populate map tiles
+
 const intializeMapTiles = ()=>{
   for(let i = 0; i<x*y;i++){
     mapObject.tiles.push(0);
