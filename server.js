@@ -37,7 +37,7 @@ const gatherImages=()=>{
         else{
           //make the name the key and the image the value
           // imageArray.push({name:file,image:"data:image/png;base64,"+image});
-          imageArray[file] = {name:file,image:"data:image/png;base64,"+image};
+          imageArray[file.substring(2,file.length-4)] = {name:file.substring(2,file.length-4),image:"data:image/png;base64,"+image, type:file.substring(0,1)};
 
           // consider also dividing the textures into tiles stamps and items with a prefix to the file name
         }

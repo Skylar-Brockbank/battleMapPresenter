@@ -14,22 +14,41 @@ getStamps();
 socket.on('message',m=>{
   if(m.type === 'fullImageRequestResponse'){
     imageIndex=m.payload;
+    let utArray=Object.keys(imageIndex);
+    utArray.forEach(e => {
+      imageIndex[e].loaded = new Image()
+      imageIndex[e].loaded.src = imageIndex[e].image;
+    });
 
     let utilityArray = Object.keys(imageIndex);
     for(let i =0; i<utilityArray.length;i++){
-      const temp = document.createElement('option');
-      temp.value=utilityArray[i];
-      const sign = document.createTextNode(utilityArray[i]);
-      temp.appendChild(sign);
-      stampSelector.appendChild(temp);
+      if(imageIndex[utilityArray[i]].type==='s'){
+        const temp = document.createElement('option');
+        temp.value=utilityArray[i];
+        const sign = document.createTextNode(utilityArray[i]);
+        temp.appendChild(sign);
+        stampSelector.appendChild(temp);
+      }
     }
 
     for(let i =0; i<utilityArray.length;i++){
-      const temp = document.createElement('option');
-      temp.value=utilityArray[i];
-      const sign = document.createTextNode(utilityArray[i]);
-      temp.appendChild(sign);
-      tileSelector.appendChild(temp);
+      if(imageIndex[utilityArray[i]].type==='t'){
+        const temp = document.createElement('option');
+        temp.value=utilityArray[i];
+        const sign = document.createTextNode(utilityArray[i]);
+        temp.appendChild(sign);
+        tileSelector.appendChild(temp);
+      }
+    }
+
+    for(let i =0; i<utilityArray.length;i++){
+      if(imageIndex[utilityArray[i]].type==='i'){
+        const temp = document.createElement('option');
+        temp.value=utilityArray[i];
+        const sign = document.createTextNode(utilityArray[i]);
+        temp.appendChild(sign);
+        itemSelector.appendChild(temp);
+      }
     }
     
   }
@@ -37,13 +56,15 @@ socket.on('message',m=>{
 //Identify select box objects
 const tileSelector = document.getElementById('tileSelector');
 const stampSelector = document.getElementById('stampSelector');
+const itemSelector = document.getElementById('itemSelector');
 
 
 //Grid and file Setup
 
 let mapObject = {
   tiles:[],
-  stamps:[]
+  stamps:[],
+  items:[]
 }
 
 
@@ -125,14 +146,15 @@ const fillTile=(id, color)=>{
   const yIn = (Math.floor(id/x))*q;
   const xIn = (id-x*(Math.floor(id/x)))*q;
   
-  const image = new Image();
-  image.onload= ()=>{
+  // const image = new Image();
+  // image.onload= ()=>{
     brush.save();
     brush.translate(xIn,yIn);
-    brush.drawImage(image,0,0, q,q);
+    brush.drawImage(imageIndex[color].loaded,0,0, q,q);
+    // brush.drawImage(image,0,0, q,q);
     brush.restore();
-  }
-  image.src=imageIndex[color].image;
+  // }
+  // image.src=imageIndex[color].image;
 }
 
 drawGrid()
@@ -149,13 +171,23 @@ document.getElementById('tileButton').addEventListener('click',e=>{
   trayMode=0;
   document.getElementById('tileTray').style.display='block';
   document.getElementById('stampTray').style.display='none';
+  document.getElementById('itemTray').style.display='none';
 })
+document.getElementById('itemButton').addEventListener('click',e=>{
+  e.preventDefault();
+  trayMode=2;
+  document.getElementById('tileTray').style.display='none';
+  document.getElementById('stampTray').style.display='none';
+  document.getElementById('itemTray').style.display='block';
+})
+
 
 document.getElementById('stampButton').addEventListener('click',e=>{
   e.preventDefault();
   trayMode=1;
   document.getElementById('tileTray').style.display='none';
   document.getElementById('stampTray').style.display='block';
+  document.getElementById('itemTray').style.display='none';
 })
 
 //Canvas click event handler
@@ -164,10 +196,13 @@ canvas.addEventListener('click',(e)=>{
   if(trayMode===0){
     fillTile(getTile(e.offsetX,e.offsetY),tileSelector.value);
     mapObject.tiles[getTile(e.offsetX,e.offsetY)]=tileSelector.value;
-  }else{
+  }else if(trayMode===1){
     drawStamp(stampSelector.value,e.offsetX,e.offsetY,scaleSlider.value,rotationSlider.value);
     mapObject.stamps.push({x:(e.offsetX/canvas.width), y:(e.offsetY/canvas.height),scale:scaleSlider.value,rotation:rotationSlider.value,stamp:stampSelector.value})
     
+  }else if(trayMode===2){
+    fillTile(getTile(e.offsetX,e.offsetY),itemSelector.value);
+    mapObject.items.push({tile:getTile(e.offsetX,e.offsetY), item:itemSelector.value})
   }
 })
 

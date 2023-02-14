@@ -28,7 +28,7 @@ const colorChange = (update)=>{
 }
 
 const drawGrid = ()=>{
-  brush.strokeStyle="White";
+  brush.strokeStyle="rgba(255, 255, 255,0.1)";
   for(let i = 1; i<x; i++){
     brush.moveTo(i*q,0);
     brush.lineTo(i*q, area.height);
@@ -44,20 +44,27 @@ const fillTile=(id, color)=>{
   const yIn = (Math.floor(id/x))*q;
   const xIn = (id-x*(Math.floor(id/x)))*q;
   
-  const image = new Image();
-  image.onload= ()=>{
+  // const image = new Image();
+  // image.onload= ()=>{
     brush.save();
     brush.translate(xIn,yIn);
-    brush.drawImage(image,0,0, q,q);
+    brush.drawImage(imageIndex[color].loaded,0,0, q,q);
+    // brush.drawImage(image,0,0, q,q);
     brush.restore();
-  }
-  image.src=imageIndex[color].image;
+  // }
+  // image.src=imageIndex[color].image;
 }
-
+const drawItems = (items)=>{
+  for(let i = 0; i<items.length;i++){
+    fillTile(items[i].tile, items[i].item);
+  }
+}
 const drawMap=(map)=>{
   for(let i=0; i<map.map.tiles.length; i++){
     fillTile(i, map.map.tiles[i]);
   }
+  console.log(map);
+  drawItems(map.map.items);
 }
 
 const clearScreen = () =>{
@@ -78,5 +85,10 @@ socket.on('message', msg=>{
     drawGrid();
   }else if(msg.type === 'fullImageRequestResponse'){
     imageIndex=msg.payload;
+    let utilityArray=Object.keys(imageIndex);
+    utilityArray.forEach(e => {
+      imageIndex[e].loaded = new Image()
+      imageIndex[e].loaded.src = imageIndex[e].image;
+    });
   }
 })
