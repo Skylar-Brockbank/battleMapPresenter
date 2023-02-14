@@ -65,8 +65,29 @@ const drawMap=(map)=>{
   }
   console.log(map);
   drawItems(map.map.items);
+  drawAllStamps(map.map.stamps);
 }
 
+const drawStamp = (stamp,xP,yP,scale,rotation)=>{
+  const xIn = xP*x*q;
+  const yIn = yP*y*q;
+  // const image = new Image();
+  // image.onload= ()=>{
+    brush.save();
+    brush.translate(xIn,yIn);
+    brush.rotate(rotation*(Math.PI/180));
+    brush.scale(scale/100,scale/100);
+    brush.drawImage(imageIndex[stamp].loaded,0-q/2,0-q/2, q,q);
+    brush.restore();
+  // }
+  // image.src=imageIndex[stamp].image;
+}
+const drawAllStamps = (stamps)=>{
+  for(let i =0; i<stamps.length; i++){
+    let t = stamps[i];
+    drawStamp(t.stamp, t.x, t.y, t.scale, t.rotation);
+  }
+}
 const clearScreen = () =>{
   brush.fillStyle='black';
   brush.fillRect(0,0,area.width,area.height);
