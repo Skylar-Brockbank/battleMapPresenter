@@ -32,6 +32,10 @@ body {
   display:none;
 }
 
+#itemTray {
+  display:none;
+}
+
 #mapCanvas {
   border:solid black;
 }

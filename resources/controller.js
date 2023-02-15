@@ -44,8 +44,3 @@ black.addEventListener('click', (e)=>{
   e.preventDefault();
   socket.emit('colorChange', 'black')
 })
-
-coast.addEventListener('click',e=>{
-  e.preventDefault();
-  socket.emit('message',{type:'command',payload:idString})
-})
