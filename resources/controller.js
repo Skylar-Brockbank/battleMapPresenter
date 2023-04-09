@@ -11,6 +11,7 @@ const mapButtonContainer = document.getElementById('mapButtons');
 mapButtonContainer.style.display='flex';
 mapButtonContainer.style.flexDirection='column';
 
+
 socket.emit('message',{type:'request'});
 
 socket.on('message',msg=>{
