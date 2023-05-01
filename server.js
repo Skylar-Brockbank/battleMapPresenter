@@ -100,6 +100,8 @@ io.on('connection', socket=>{
       //Send Images
     }else if(msg.type==='fullImageRequest'){
       socket.emit('message',{type:'fullImageRequestResponse',payload:globalImages});
+    }else if(msg.type==='setEntity'){
+      socket.emit('message',{type:'setEntity',x:msg.x,y:msg.y,visable:msg.visable});
     }
   })
 })

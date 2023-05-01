@@ -14,6 +14,10 @@ area.style.width=x*q;
 area.height = y*q;
 area.width = x*q;
 
+let currentMap;
+
+let entityList = {};
+
 const getStamps=()=>{
   socket.emit('message',{type:'fullImageRequest'});
 }
@@ -41,11 +45,11 @@ const drawGrid = ()=>{
   }
 }
 const fillTile=(id, color)=>{
-  const yIn = (Math.floor(id/x))*q;
-  const xIn = (id-x*(Math.floor(id/x)))*q;
+  const yIn = (Math.floor(id/(x)))*(q);
+  const xIn = (id-x*(Math.floor(id/(x))))*(q);
   
   // const image = new Image();
-  // image.onload= ()=>{
+  // image.onload= ()=>{f
     brush.save();
     brush.translate(xIn,yIn);
     brush.drawImage(imageIndex[color].loaded,0,0, q,q);
@@ -59,6 +63,19 @@ const drawItems = (items)=>{
     fillTile(items[i].tile, items[i].item);
   }
 }
+const drawEntities = (list)=>{
+  const listKeys = Object.keys(list);
+  for(let i =0; i<listKeys; i++){
+    const xIn = list[listKeys[i]].x*q;
+    const yIn = list[listKeys[i]].y*q;
+    brush.beginPath();
+    brush.arc(xIn+q/2,yIn+q/2, 0.4*q, 0, 2*Math.PI);
+    brush.stroke();
+    brush.font = "30px Arial";
+    brush.fillText(listKeys[i], xIn, yIn);
+    console.log(listKeys[i]);
+  }
+}
 const drawMap=(map)=>{
   for(let i=0; i<map.map.tiles.length; i++){
     fillTile(i, map.map.tiles[i]);
@@ -66,6 +83,7 @@ const drawMap=(map)=>{
   console.log(map);
   drawItems(map.map.items);
   drawAllStamps(map.map.stamps);
+  drawEntities(entityList);
 }
 
 const drawStamp = (stamp,xP,yP,scale,rotation)=>{
@@ -94,6 +112,8 @@ const clearScreen = () =>{
 }
 
 socket.on('message', msg=>{
+  console.log(msg);
+
   if(msg.type==='color'){
     if(msg.payload==='black'){
       clearScreen();
@@ -102,6 +122,7 @@ socket.on('message', msg=>{
     }
   }else if(msg.type==='map'){
     console.log(msg);
+    currentMap=msg.payload;
     drawMap(msg.payload);
     drawGrid();
   }else if(msg.type === 'fullImageRequestResponse'){
@@ -111,5 +132,9 @@ socket.on('message', msg=>{
       imageIndex[e].loaded = new Image()
       imageIndex[e].loaded.src = imageIndex[e].image;
     });
+  }else if(msg.type==='setEntity'){
+    console.log(msg);
+    entityList[msg.payload.name]=msg.payload;
+    drawMap(currentMap);
   }
 })

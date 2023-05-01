@@ -1,8 +1,16 @@
 const socket = io();
 
 //Set global size
-const x=12;
-const y=20;
+// const x=12;
+// const y=20;
+const x=36;
+const y=60;
+
+let clickMode=0;
+let clickPoint={
+  x:null,
+  y:null
+}
 
 let imageIndex;
 
@@ -75,6 +83,7 @@ const intializeMapTiles = ()=>{
     mapObject.tiles.push(0);
   }
   mapObject.stamps=[];
+  mapObject.items=[];
 }
 intializeMapTiles();
 
@@ -98,14 +107,14 @@ canvas.width= q*x;
 
 const drawGrid = ()=>{
   brush.strokeStyle="black";
-  for(let i = 1; i<x; i++){
-    brush.moveTo(i*q,0);
-    brush.lineTo(i*q, canvas.height);
+  for(let i = 1; i<(x/3); i++){
+    brush.moveTo(i*q*3,0);
+    brush.lineTo(i*q*3, canvas.height);
     brush.stroke();
   }
-  for(let i = 1; i<y; i++){
-    brush.moveTo(0,i*q);
-    brush.lineTo(canvas.width, i*q);
+  for(let i = 1; i<(y/3); i++){
+    brush.moveTo(0,i*q*3);
+    brush.lineTo(canvas.width, i*q*3);
     brush.stroke();
   }
 }
@@ -135,6 +144,9 @@ const drawStamp = (stamp,xIn,yIn,scale,rotation)=>{
 const getTile=(xIn,yIn)=>{
   return (Math.floor(yIn/q)*x)+(Math.floor(xIn/q));
 }
+const getItemTile=(xIn,yIn)=>{
+  return (Math.floor(yIn/(q*3))*(x/3))+(Math.floor(xIn/(q*3)));
+}
 const updateMapVisuals=()=>{
   for(i=0;i<x*y;i++){
     fillTile(i, mapObject.tiles[i]);
@@ -151,6 +163,20 @@ const fillTile=(id, color)=>{
     brush.save();
     brush.translate(xIn,yIn);
     brush.drawImage(imageIndex[color].loaded,0,0, q,q);
+    // brush.drawImage(image,0,0, q,q);
+    brush.restore();
+  // }
+  // image.src=imageIndex[color].image;
+}
+const fillItem=(id, color)=>{
+  const yIn = (Math.floor(id/(x/3)))*q*3;
+  const xIn = (id-(x/3)*(Math.floor(id/(x/3))))*q*3;
+  
+  // const image = new Image();
+  // image.onload= ()=>{
+    brush.save();
+    brush.translate(xIn,yIn);
+    brush.drawImage(imageIndex[color].loaded,0,0, q*3,q*3);
     // brush.drawImage(image,0,0, q,q);
     brush.restore();
   // }
@@ -190,19 +216,52 @@ document.getElementById('stampButton').addEventListener('click',e=>{
   document.getElementById('itemTray').style.display='none';
 })
 
+
+const fillRectangle = (texture, x1, y1, x2, y2) =>{
+  xstart = (x1<x2)?x1:x2;
+  ystart = (y1<y2)?y1:y2;
+  xend = (x1>x2)?x1:x2;
+  yend = (y1>y2)?y1:y2;
+  
+
+
+  for(i=0; i<(xend-xstart); i++){
+    for(j=0; j<(yend-ystart); j++){
+      const tileID = getTile(xstart+i, ystart+j);
+      fillTile(tileID, texture);
+      mapObject.tiles[tileID]=texture;
+    }
+  }
+  drawGrid();
+}
+
 //Canvas click event handler
 canvas.addEventListener('click',(e)=>{
   e.preventDefault();
   if(trayMode===0){
-    fillTile(getTile(e.offsetX,e.offsetY),tileSelector.value);
-    mapObject.tiles[getTile(e.offsetX,e.offsetY)]=tileSelector.value;
+    if(clickMode===0){
+      fillTile(getTile(e.offsetX,e.offsetY),tileSelector.value);
+      mapObject.tiles[getTile(e.offsetX,e.offsetY)]=tileSelector.value;
+    }else if(clickMode===1){
+      if(clickPoint.x){
+        console.log("clickPoint x is true");
+        fillRectangle(tileSelector.value, e.offsetX,e.offsetY,clickPoint.x,clickPoint.y);
+        clickPoint.x=null;
+        clickPoint.y=null;
+        clickMode=0;
+      }else{
+        clickPoint.x=e.offsetX;
+        clickPoint.y=e.offsetY;
+        console.log(clickPoint);
+      }
+    }
   }else if(trayMode===1){
     drawStamp(stampSelector.value,e.offsetX,e.offsetY,scaleSlider.value,rotationSlider.value);
     mapObject.stamps.push({x:(e.offsetX/canvas.width), y:(e.offsetY/canvas.height),scale:scaleSlider.value,rotation:rotationSlider.value,stamp:stampSelector.value})
     
   }else if(trayMode===2){
-    fillTile(getTile(e.offsetX,e.offsetY),itemSelector.value);
-    mapObject.items.push({tile:getTile(e.offsetX,e.offsetY), item:itemSelector.value})
+    fillItem(getItemTile(e.offsetX,e.offsetY),itemSelector.value);
+    mapObject.items.push({tile:getItemTile(e.offsetX,e.offsetY), item:itemSelector.value})
   }
 })
 
@@ -237,4 +296,9 @@ document.getElementById('fill').addEventListener('click',e=>{
   }
   updateMapVisuals();
   console.log(mapObject)
+})
+document.getElementById('fillRect').addEventListener('click',e=>{
+  e.preventDefault();
+  clickMode=1;
+  console.log('click mode:', clickMode);
 })

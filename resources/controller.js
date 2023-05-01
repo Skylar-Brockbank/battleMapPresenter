@@ -11,6 +11,12 @@ const mapButtonContainer = document.getElementById('mapButtons');
 mapButtonContainer.style.display='flex';
 mapButtonContainer.style.flexDirection='column';
 
+let entityList = {};
+
+const setEntity = (name, x,y, visable) =>{
+  entityList[name] = {name:name, x:x,y:y,visable:visable};
+  socket.emit('message',{type:'setEntity', payload:{name:name,x:x,y:y,visable:visable}});
+}
 
 socket.emit('message',{type:'request'});
 
@@ -44,4 +50,16 @@ blue.addEventListener('click', (e)=>{
 black.addEventListener('click', (e)=>{
   e.preventDefault();
   socket.emit('colorChange', 'black')
+})
+
+const ename = document.getElementById('entityName');
+const xin = document.getElementById('xinput');
+const yin = document.getElementById('yinput');
+const vis = document.getElementById('vis');
+
+document.getElementById('updateForm').addEventListener('click',(e)=>{
+  e.preventDefault();
+  if(ename.value){
+    setEntity(ename.value, xin.value, yin.value, vis.value);
+  }
 })
