@@ -130,12 +130,13 @@ const drawCross=(xIn,yIn)=>{
 
 const drawStamp = (stamp,xIn,yIn,scale,rotation)=>{
   const image = new Image();
+  const w=q*3;
   image.onload= ()=>{
     brush.save();
     brush.translate(xIn,yIn);
     brush.rotate(rotation*(Math.PI/180));
     brush.scale(scale/100,scale/100);
-    brush.drawImage(image,0-q/2,0-q/2, q,q);
+    brush.drawImage(image,0-w/2,0-w/2, w,w);
     brush.restore();
   }
   image.src=imageIndex[stamp].image;

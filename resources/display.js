@@ -5,8 +5,8 @@ let imageIndex;
 const area = document.getElementById('mapArea');
 const brush = area.getContext('2d');
 
-const x = 12;
-const y = 20;
+const x = 36;
+const y = 60;
 const q= ((window.innerHeight/y)>(window.innerWidth/x))?(window.innerWidth/x):(window.innerHeight/y);
 
 area.style.height=y*q;
@@ -31,16 +31,29 @@ const colorChange = (update)=>{
   drawGrid();
 }
 
+// const drawGrid = ()=>{
+//   brush.strokeStyle="rgba(255, 255, 255,0.1)";
+//   for(let i = 1; i<x; i++){
+//     brush.moveTo(i*q,0);
+//     brush.lineTo(i*q, area.height);
+//     brush.stroke();
+//   }
+//   for(let i = 1; i<y; i++){
+//     brush.moveTo(0,i*q);
+//     brush.lineTo(area.width, i*q);
+//     brush.stroke();
+//   }
+// }
 const drawGrid = ()=>{
   brush.strokeStyle="rgba(255, 255, 255,0.1)";
-  for(let i = 1; i<x; i++){
-    brush.moveTo(i*q,0);
-    brush.lineTo(i*q, area.height);
+  for(let i = 1; i<(x/3); i++){
+    brush.moveTo(i*q*3,0);
+    brush.lineTo(i*q*3, area.height);
     brush.stroke();
   }
-  for(let i = 1; i<y; i++){
-    brush.moveTo(0,i*q);
-    brush.lineTo(area.width, i*q);
+  for(let i = 1; i<(y/3); i++){
+    brush.moveTo(0,i*q*3);
+    brush.lineTo(area.width, i*q*3);
     brush.stroke();
   }
 }
@@ -60,9 +73,25 @@ const fillTile=(id, color)=>{
 }
 const drawItems = (items)=>{
   for(let i = 0; i<items.length;i++){
-    fillTile(items[i].tile, items[i].item);
+    fillItem(items[i].tile, items[i].item);
   }
 }
+
+const fillItem=(id, color)=>{
+  const yIn = (Math.floor(id/(x/3)))*q*3;
+  const xIn = (id-(x/3)*(Math.floor(id/(x/3))))*q*3;
+  
+  // const image = new Image();
+  // image.onload= ()=>{
+    brush.save();
+    brush.translate(xIn,yIn);
+    brush.drawImage(imageIndex[color].loaded,0,0, q*3,q*3);
+    // brush.drawImage(image,0,0, q,q);
+    brush.restore();
+  // }
+  // image.src=imageIndex[color].image;
+}
+
 const drawEntities = (list)=>{
   const listKeys = Object.keys(list);
   for(let i =0; i<listKeys; i++){
@@ -89,13 +118,14 @@ const drawMap=(map)=>{
 const drawStamp = (stamp,xP,yP,scale,rotation)=>{
   const xIn = xP*x*q;
   const yIn = yP*y*q;
+  const w=q*3
   // const image = new Image();
   // image.onload= ()=>{
     brush.save();
     brush.translate(xIn,yIn);
     brush.rotate(rotation*(Math.PI/180));
     brush.scale(scale/100,scale/100);
-    brush.drawImage(imageIndex[stamp].loaded,0-q/2,0-q/2, q,q);
+    brush.drawImage(imageIndex[stamp].loaded,0-w/2,0-w/2, w,w);
     brush.restore();
   // }
   // image.src=imageIndex[stamp].image;
